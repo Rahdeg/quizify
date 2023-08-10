@@ -1,12 +1,25 @@
 import CustomWordCloud from '@/components/custom-word-cloud'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { prisma } from '@/lib/prismadb';
 import React from 'react'
 
 interface HotTopicCardProps{
 
 }
 
-const HotTopicCard = () => {
+
+
+const HotTopicCard = async() => {
+
+  const  topics = await prisma.topicCount.findMany({});
+  const formatedTopics = topics.map((topic)=>{
+    return {
+      text: topic.topic,
+      value: topic.count
+    }
+  })
+
+
   return (
     <Card className=' col-span-4'>
         <CardHeader>
@@ -16,7 +29,7 @@ const HotTopicCard = () => {
             </CardDescription>
         </CardHeader>
         <CardContent className=' pl-2'>
-           <CustomWordCloud/>
+           <CustomWordCloud formatedTopics={formatedTopics}/>
         </CardContent>
     </Card>
   )

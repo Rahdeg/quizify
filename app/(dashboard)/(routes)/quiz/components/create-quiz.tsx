@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod'
 import { formSchema } from './constant';
@@ -12,14 +12,20 @@ import { BookOpen, CopyCheck } from 'lucide-react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import {useMutation} from "@tanstack/react-query"
+import LoadingQuestion from '@/components/loading-question';
 
 
 
-type Props ={}
+interface CreateQuizProps{
+  topicParams: string
+}
+
 type Input = z.infer<typeof formSchema>
 
-const CreateQuiz = (props : Props) => {
+const CreateQuiz = ({topicParams}: CreateQuizProps) => {
   const router = useRouter();
+  const [showLoader, setShowLoader] = useState(false);
+  const [finished, setFinished] = useState(false)
   const {mutate : getQuestions, isLoading} = useMutation({
     mutationFn: async ({amount,topic,type}:Input )=>{
       const {data} = await axios.post(`/api/game`,{amount,topic,type})
@@ -31,7 +37,7 @@ const CreateQuiz = (props : Props) => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues:{
-          topic: "",
+          topic: topicParams,
           amount: 3,
           type:"open_ended"
         }
@@ -40,22 +46,31 @@ const CreateQuiz = (props : Props) => {
     // const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async (values: z.infer<typeof formSchema>)=>{
+      setShowLoader(true);
      getQuestions({
       amount: values.amount,
       type: values.type,
       topic: values.topic
      },{ onSuccess:({gameId})=>{
-      if (form.getValues("type")==="open_ended") {
-        router.push(`/play/open_ended/${gameId}`)
-      }else {
-        router.push(`/play/moq/${gameId}`)
-      }
-     
-      }})
+      setFinished(true);
+      setTimeout(()=>{
+        if (form.getValues("type")==="open_ended") {
+          router.push(`/play/open_ended/${gameId}`)
+        }else {
+          router.push(`/play/moq/${gameId}`)
+        }  
+      },1000)
+      },
+    onError:()=>{
+      setShowLoader(false)
+    }})
       
       };
 
       form.watch();
+      if (showLoader) {
+        return <LoadingQuestion finished={finished}/>
+      }
 
   return (
     <div className='h-full flex items-center justify-center'>
@@ -118,6 +133,7 @@ const CreateQuiz = (props : Props) => {
               </Button>
 
             </div>
+
             <Button className=" col-span-12 lg:col-span-2 w-full" disabled={isLoading}>
               Submit
             </Button>

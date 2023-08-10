@@ -26,6 +26,21 @@ export async function POST(req: Request, res: Response) {
      }
     })
 
+    await prisma.topicCount.upsert({
+      where:{
+        topic
+      },
+      create:{
+        topic,
+        count: 1
+      },
+      update:{
+        count:{
+          increment : 1
+        }
+      }
+    })
+
     const {data} = await axios.post(`${baseUrl}/api/question`,{amount,topic,type});
     if (type === "moq") {
       type moqQuestion ={ 
@@ -77,3 +92,5 @@ export async function POST(req: Request, res: Response) {
       return NextResponse.json({error: "Something went wrong"},{status: 500})
     }
 }
+
+

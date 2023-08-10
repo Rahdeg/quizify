@@ -1,7 +1,9 @@
 import getGames from '@/actions/get-game';
+import getOpenGames from '@/actions/get-game-withanswer';
 import { getAuthSession } from '@/lib/next-auth'
 import { redirect } from 'next/navigation';
 import React from 'react'
+import OpenEnded from './components/open-ended';
 
 interface OpenEndedPageProps{
   params : {gameId : string}
@@ -13,16 +15,12 @@ const OpenEndedPage = async ({params :{gameId}}:OpenEndedPageProps) => {
         return redirect("/")
       }
     
-      const game = await getGames(gameId);
+      const game = await getOpenGames(gameId);
       if (!game || game.gameType !== "open_ended") {
         return redirect("/quiz")
       }
 
-  return (
-    <div>
-        {gameId}
-    </div>
-  )
+  return <OpenEnded game ={game}/>
 }
 
 export default OpenEndedPage

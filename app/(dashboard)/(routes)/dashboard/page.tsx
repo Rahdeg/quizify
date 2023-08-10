@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(dashboard)/(routes)/dashboard/components/dashb
 import { BrainCircuit, History } from 'lucide-react'
 import HotTopicCard from './components/hot-topic-card'
 import RecentActivities from './components/recent-activities'
+import { prisma } from '@/lib/prismadb'
 
 interface DashboardPageProps{
 
@@ -20,6 +21,15 @@ const DashboardPage = async (props : DashboardPageProps) => {
     if (!session?.user) {
      return redirect("/")
     }
+
+    const gameCount = await prisma.game.count({
+      where:{
+        userId: session.user.id
+      }
+    });
+
+   
+
   return (
     <main className='p-8 mx-auto max-w-7xl'>
         <div className='flex items-center'>
@@ -31,7 +41,7 @@ const DashboardPage = async (props : DashboardPageProps) => {
         </div>
         <div className='grid gap-4 mt-4 md:grid-cols-2 lg:grid-cols-7'>
           <HotTopicCard/>
-          <RecentActivities/>
+          <RecentActivities userId={session.user.id} gameCount={gameCount}/>
         </div>
     </main>
   )

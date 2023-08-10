@@ -28,9 +28,10 @@ export default function RootLayout({
         <QueryProvider>
       <ThemeProvider attribute='class' defaultTheme='light' enableSystem>
         <NavBar/>
+        <Toaster />
         <NextProvider>
         {children}
-        <Toaster />
+       
         </NextProvider>
         </ThemeProvider>
         </QueryProvider>

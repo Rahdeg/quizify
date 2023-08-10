@@ -7,13 +7,20 @@ export const metadata = {
     title: "Pumpfi | Pump"
 }
 
-const QuizPage = async() => {
+interface QuizPageProps{
+  searchParams:{
+    topic?: string
+  }
+}
+
+const QuizPage = async({searchParams}: QuizPageProps) => {
   const session = await getAuthSession();
+
 
   if (!session?.user) {
     return redirect("/")
   }
-  return <CreateQuiz/>
+  return <CreateQuiz topicParams={searchParams?.topic ?? ''}/>
 }
 
 export default QuizPage
